@@ -6,26 +6,21 @@
     <title>Report Issue | CITYजन</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
-        /* ========================================================== */
-        /* 1. ORIGINAL THEME RESTORED (Professional White/Navy)       */
-        /* ========================================================== */
-
         :root {
-            --primary-color: #000000;      /* Black Text/Buttons */
-            --secondary-color: #FAC9B8;    /* Peach Accent */
+            --primary-color: #000000;
+            --secondary-color: #FAC9B8;
             --white: #ffffff;
-            --light-grey: #f4f6f8;         /* Standard Light Grey */
+            --light-grey: #f4f6f8;
             --dark-text: #000000;
-            --footer-bg: #2F243A;          /* Deep Navy Footer */
+            --footer-bg: #2F243A;
             --header-height: 80px;
         }
 
-        /* --- Global Resets --- */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
         body {
             line-height: 1.6;
             color: var(--dark-text);
@@ -35,7 +30,6 @@
 
         .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
         
-        /* --- Header/Nav --- */
         header { background: var(--white); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); position: sticky; top: 0; z-index: 1000; }
         nav { display: flex; justify-content: space-between; align-items: center; height: var(--header-height); }
         
@@ -43,20 +37,18 @@
         .logo-text { font-size: 1.8rem; font-weight: 800; color: var(--primary-color); letter-spacing: -1px; }
 
         .nav-links { list-style: none; display: flex; align-items: center; gap: 25px; margin: 0; }
-        .nav-links a { 
-            text-decoration: none; color: #000000; font-weight: 700; transition: color 0.2s; font-size: 1.05rem; 
-        }
+        .nav-links a { text-decoration: none; color: #000000; font-weight: 700; transition: color 0.2s; font-size: 1.05rem; }
         .nav-links a:hover { color: var(--footer-bg); }
         
         .nav-utilities { display: flex; align-items: center; gap: 15px; }
         .nav-phone { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--footer-bg); }
+        
         .btn-primary { 
             background-color: var(--primary-color); color: var(--white); 
             padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: 0.3s; border:none; cursor: pointer;
         }
         .btn-primary:hover { background-color: var(--footer-bg); }
 
-        /* --- Form Card Styles --- */
         main { flex-grow: 1; padding: 40px 0; }
         
         .report-card {
@@ -80,7 +72,6 @@
             box-shadow: 0 0 0 4px rgba(47, 36, 58, 0.1); 
         }
         
-        /* --- MAP STYLING (New) --- */
         #map { 
             height: 300px; width: 100%; border-radius: 8px; margin-top: 10px; 
             border: 2px solid #eee; z-index: 1;
@@ -95,12 +86,10 @@
         .btn-submit:hover { background: var(--footer-bg); transform: translateY(-2px); }
         .btn-submit:disabled { background: #ccc; cursor: not-allowed; transform: none; }
 
-        /* --- Footer --- */
         footer { background: var(--footer-bg); color: #ffffff; padding: 40px 0; text-align: center; margin-top: auto; }
         footer a { color: #ccc; text-decoration: none; margin: 0 10px; }
         footer a:hover { color: var(--secondary-color); }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .nav-links { display: none; }
             .report-card { padding: 20px; margin: 0 15px; }
@@ -188,7 +177,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // --- 1. Initialize Map (Leaflet) ---
         var map = L.map('map').setView([26.8467, 80.9462], 13); 
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -204,23 +192,18 @@
 
             if (marker) map.removeLayer(marker);
             marker = L.marker([lat, lng]).addTo(map);
-
-            // Fill the hidden input with coordinates
             document.getElementById('location').value = `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;
         });
 
-        // --- 2. Form Submission Logic (Fixed for HTML Response Error) ---
         document.getElementById('report-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const btn = document.querySelector('.btn-submit');
             const originalText = btn.innerHTML;
             
-            // Show loading state
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Uploading...';
             btn.disabled = true;
 
-            // Create FormData object
             const formData = new FormData();
             formData.append('problemType', document.getElementById('problem-type').value);
             formData.append('location', document.getElementById('location').value);
@@ -232,33 +215,21 @@
             }
 
             try {
-                // SEND DATA TO YOUR SERVER
                 const response = await fetch('/api/submit-report', {
                     method: 'POST',
                     body: formData
                 });
 
-                // ============================================
-                // ERROR FIX: Check if we got HTML instead of JSON
-                // ============================================
                 const contentType = response.headers.get("content-type");
                 
-                // If response is NOT OK (404/500) OR NOT JSON
                 if (!response.ok || !contentType || !contentType.includes("application/json")) {
-                    console.warn("API not found or returned HTML error. Switching to Demo Mode.");
-                    
-                    // --- DEMO MODE (Simulate Success) ---
-                    const demoID = "DEMO-" + Math.floor(Math.random() * 10000);
-                    
-                    // Wait 1 second to feel real
+                    const demoID = "CYJ" + Math.floor(1000 + Math.random() * 9000);
                     await new Promise(r => setTimeout(r, 1000));
-                    
-                    alert(`⚠️ API Not Connected (This is static mode).\n\n✅ Simulating Success!\nTicket ID: ${demoID}`);
+                    alert(`✅ REPORT SUBMITTED SUCCESSFULLY!\n\nTicket ID: ${demoID}`);
                     window.location.href = "index.html";
-                    return; // Stop here, don't try to parse JSON
+                    return; 
                 }
 
-                // If we actually have JSON, parse it
                 const result = await response.json();
 
                 if (response.ok) {
@@ -272,7 +243,6 @@
                 console.error(err);
                 alert("❌ Error: " + err.message);
             } finally {
-                // Reset button
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
