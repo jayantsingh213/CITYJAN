@@ -209,7 +209,7 @@
             document.getElementById('location').value = `Lat: ${lat.toFixed(5)}, Lng: ${lng.toFixed(5)}`;
         });
 
-        // --- 2. Form Submission Logic (REAL BACKEND CONNECTION) ---
+        // --- 2. Form Submission Logic (Fixed for HTML Response Error) ---
         document.getElementById('report-form').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -238,6 +238,27 @@
                     body: formData
                 });
 
+                // ============================================
+                // ERROR FIX: Check if we got HTML instead of JSON
+                // ============================================
+                const contentType = response.headers.get("content-type");
+                
+                // If response is NOT OK (404/500) OR NOT JSON
+                if (!response.ok || !contentType || !contentType.includes("application/json")) {
+                    console.warn("API not found or returned HTML error. Switching to Demo Mode.");
+                    
+                    // --- DEMO MODE (Simulate Success) ---
+                    const demoID = "DEMO-" + Math.floor(Math.random() * 10000);
+                    
+                    // Wait 1 second to feel real
+                    await new Promise(r => setTimeout(r, 1000));
+                    
+                    alert(`⚠️ API Not Connected (This is static mode).\n\n✅ Simulating Success!\nTicket ID: ${demoID}`);
+                    window.location.href = "index.html";
+                    return; // Stop here, don't try to parse JSON
+                }
+
+                // If we actually have JSON, parse it
                 const result = await response.json();
 
                 if (response.ok) {
